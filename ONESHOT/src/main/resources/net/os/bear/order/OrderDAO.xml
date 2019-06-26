@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.os.bear.order.OrderDAO">
+
+	<select id="getOrder" parameterType="String" resultType="OrderDTO">
+		SELECT order_no, order_qty, order_addr, user_id
+		FROM os_order
+	</select>
+	<!-- 주문 정보 -->
+	<insert id="insertOrder" parameterType="OrderDTO">
+	 INSERT INTO os_order(order_no,  order_addr, user_id,order_price)
+	     VALUES(#{order_no},  #{order_addr}, #{userDTO.user_id},#{order_price})
+	</insert>
+	
+	<!-- 장바구니 비우기 -->
+	<delete id="deleteAll" parameterType="String">
+		DELETE FROM os_cart
+		WHERE user_id=#{userInfo.user_id}
+	</delete>
+	
+	<!-- 	 주문 상세 정보  -->
+	<insert id="orderInfo_Detail" parameterType="OrderDTO">
+	 INSERT INTO os_order_detail(order_detail_qty,order_no,product_no)
+	     SELECT  cart_qty,#{order_no}, product_no
+	         FROM os_cart 
+	         WHERE user_id =#{userDTO.user_id} 
+	</insert> 
+	
+</mapper>

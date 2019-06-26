@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.os.bear.main.MainDAO">
+
+	<update id="Writeqna" parameterType="map">
+	update os_cs
+	set cs_answer=#{con},
+    	cs_check=#{ck}
+	where cs_no=#{no} and cs_section='B'
+	</update>
+	<update id="Write1" parameterType="map">
+	update os_cs
+	set cs_answer=#{con},
+    	cs_check=#{ck}
+	where cs_no=#{no} and cs_section='A'
+	</update>
+
+	<select id="getqnaCnt" resultType="long">
+	select count(*) from os_cs where cs_section='B'
+	</select>
+	<select id="get1Cnt" resultType="long">
+	select count(*) from os_cs where cs_section='A'
+	</select>
+	<select id="getqnaList" resultType="net.os.bear.user.MyPageDTO">
+	select B.*
+     from(select rownum as rnum,A.*
+     from(
+    select p.product_name as "productDTO.product_name", c.product_no as "csDTO.product_no",
+	       c.cs_no as "csDTO.cs_no",c.cs_title as "csDTO.cs_title",c.cs_content as "csDTO.cs_content", 
+	       	   c.user_id as "userDTO.user_id",
+	       c.cs_answer as "csDTO.cs_answer",c.cs_check as "csDTO.cs_check",
+	       c.cs_question_date as "csDTO.cs_question_date"
+	from os_cs c join os_product p
+	on c.product_no = p.product_no
+	where c.cs_section = 'B' )A)B
+    where rnum between #{startNum} and #{endNum}
+	</select>
+	<select id="get1List" resultType="net.os.bear.user.MyPageDTO">
+	select B.*
+     from(select rownum as rnum,A.*
+     from(
+    select p.product_name as "productDTO.product_name", c.product_no as "csDTO.product_no",
+	       c.cs_no as "csDTO.cs_no",c.cs_title as "csDTO.cs_title",c.cs_content as "csDTO.cs_content", 
+	       	   c.user_id as "userDTO.user_id",
+	       c.cs_answer as "csDTO.cs_answer",c.cs_check as "csDTO.cs_check",
+	       c.cs_question_date as "csDTO.cs_question_date"
+	from os_cs c join os_product p
+	on c.product_no = p.product_no
+	where c.cs_section = 'A')A)B
+    where rnum between #{startNum} and #{endNum}
+	</select>
+	
+	<select id="DeleteUser" parameterType="map" >
+	delete from os_user
+	where user_id=#{id}
+	</select>
+
+	<select id="getUserList" parameterType="PageDTO" resultType="net.os.bear.user.UserDTO">
+	 select B.*
+     from(select rownum as rnum,A.*
+          from (select user_id,user_pw,user_adr,user_level,user_warn,user_jumin,user_taste,
+		   				user_taste2,user_taste3,user_flavor,user_type
+                 from os_user
+                 order by user_id ) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+	
+	<select id="getUserCnt" resultType="long">
+	select count(*)
+	from os_user
+	</select>
+	
+	<select id="getMainBestList" resultType="net.os.bear.product.ProductDTO">
+	select a.*,rownum
+   	from  (select product_no,product_name,product_sales_qty,product_price,product_date,product_ename,
+           rank() over (order by product_sales_qty desc) "순위" 
+        	from os_product) a 
+ 	<![CDATA[
+        	where 
+        	rownum <= 12
+	    ]]>
+	</select>
+
+	<select id="getProductList" parameterType="net.os.bear.product.ProductDTO" resultType="net.os.bear.product.ProductDTO">
+	select product_no, product_name, product_price,product_date,product_ename
+	from os_product
+	</select>
+	
+	<select id="getProductCnt" parameterType="PageDTO" resultType="PageDTO">
+	select count(*) as cnt from os_product
+	</select>
+	
+	<select id="getPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+	 select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product
+                 order by product_no desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+    
+	<select id="getPagingList2" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+	 select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product
+                order by product_date desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+	<select id="getALPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+	 select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product
+                order by product_alc ) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+	<select id="getAHPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+	 select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product
+                order by product_alc desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+    
+	<select id="getFPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+     select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product  where product_flavor like 
+        <foreach collection="arr2" item="item" index="index" separator="and product_flavor like" >
+           '%'||#{item}||'%' 
+        </foreach>
+                 and (product_type like 
+        <foreach collection="arr3" item="item" index="index" close=")" separator="or product_type like">
+           '%'||#{item}||'%' 
+        </foreach>
+        <foreach collection="arr" item="item" index="index" separator="">
+          and (product_taste like '%'||#{item}||'%' or product_taste2 like '%'||#{item}||'%'
+          		or product_taste3 like '%'||#{item}||'%' )
+        </foreach>
+        and (product_alc between
+         <foreach collection="arr4" item="item" index="index" close=")" separator="and "> -->
+           #{item}
+ 		</foreach> 
+        and (product_country like
+         <foreach collection="arr5" item="item" index="index" close=")" separator="or product_country like">
+            '%'||#{item}||'%'
+        </foreach>
+                 order by product_no desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+    
+	<select id="getFNPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+     select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product  where product_flavor like 
+        <foreach collection="arr2" item="item" index="index" separator="and product_flavor like" >
+           '%'||#{item}||'%' 
+        </foreach>
+                 and (product_type like 
+        <foreach collection="arr3" item="item" index="index" close=")" separator="or product_type like">
+           '%'||#{item}||'%' 
+        </foreach>
+        <foreach collection="arr" item="item" index="index" separator="">
+          and (product_taste like '%'||#{item}||'%' or product_taste2 like '%'||#{item}||'%'
+          		or product_taste3 like '%'||#{item}||'%' )
+        </foreach>
+        and (product_alc =
+       <foreach collection="arr4" item="item" index="index" close=")" separator="and "> -->
+           #{item}
+ 		</foreach> 
+        and (product_country like
+         <foreach collection="arr5" item="item" index="index" close=")" separator="or product_country like">
+            '%'||#{item}||'%'
+        </foreach>
+                 order by product_date desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+    
+	<select id="getFALPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+     select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product  where product_flavor like 
+        <foreach collection="arr2" item="item" index="index" separator="and product_flavor like" >
+           '%'||#{item}||'%' 
+        </foreach>
+                 and (product_type like 
+        <foreach collection="arr3" item="item" index="index" close=")" separator="or product_type like">
+           '%'||#{item}||'%' 
+        </foreach>
+        <foreach collection="arr" item="item" index="index" separator="">
+          and (product_taste like '%'||#{item}||'%' or product_taste2 like '%'||#{item}||'%'
+          		or product_taste3 like '%'||#{item}||'%' )
+        </foreach>
+        and (product_alc =
+        <foreach collection="arr4" item="item" index="index" close=")" separator="and "> -->
+           #{item}
+ 		</foreach> 
+        and (product_country like
+         <foreach collection="arr5" item="item" index="index" close=")" separator="or product_country like">
+            '%'||#{item}||'%'
+        </foreach>
+                 order by product_alc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+    
+	<select id="getFAHPagingList" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+     select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product  where product_flavor like 
+        <foreach collection="arr2" item="item" index="index" separator="and product_flavor like" >
+           '%'||#{item}||'%' 
+        </foreach>
+                 and (product_type like 
+        <foreach collection="arr3" item="item" index="index" close=")" separator="or product_type like">
+           '%'||#{item}||'%' 
+        </foreach>
+        <foreach collection="arr" item="item" index="index" separator="">
+          and (product_taste like '%'||#{item}||'%' or product_taste2 like '%'||#{item}||'%'
+          		or product_taste3 like '%'||#{item}||'%' )
+        </foreach>
+        and (product_alc =
+        <foreach collection="arr4" item="item" index="index" close=")" separator="and "> -->
+           #{item}
+ 		</foreach> 
+        and (product_country like
+         <foreach collection="arr5" item="item" index="index" close=")" separator="or product_country like">
+            '%'||#{item}||'%'
+        </foreach>
+                 order by product_alc no desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+	<select id="getFcnt" parameterType="PageDTO" resultType="int">
+		select count(*)
+		from os_product  where product_flavor like 
+        <foreach collection="arr2" item="item" index="index" separator="and product_flavor like" >
+           '%'||#{item}||'%' 
+        </foreach>
+            and (product_type like 
+        <foreach collection="arr3" item="item" index="index" close=")" separator="or product_type like">
+           '%'||#{item}||'%' 
+        </foreach>
+         <foreach collection="arr" item="item" index="index" separator="">
+            and (product_taste like '%'||#{item}||'%' or product_taste2 like '%'||#{item}||'%'
+          		or product_taste3 like '%'||#{item}||'%' )
+        </foreach>
+         and (product_alc between
+<!--          and (product_alc between #{arr4} and #{arr4}) -->
+        <foreach collection="arr4" item="item" index="index" close=")" separator="and ">
+          #{item}
+ 		</foreach> 
+        and (product_country like
+         <foreach collection="arr5" item="item" index="index" close=")" separator="or product_country like">
+            '%'||#{item}||'%'
+        </foreach>
+    </select>
+    
+    <select id="resultSearchCnt" parameterType="String" resultType="int">
+    select count(*)
+    from os_product
+    where upper(product_name) like '%'||upper(#{search})||'%' or upper(product_ename) like '%'||upper(#{search})||'%'
+    </select>
+    
+    <select id="resultSearch" parameterType="PageDTO" resultType="net.os.bear.product.ProductDTO">
+     select B.*
+     from(select rownum as rnum,A.*
+          from (select product_no, product_name, product_price,product_date,product_ename
+                 from os_product  where upper(product_name) like '%'||upper(#{search})||'%'
+                 or upper(product_ename) like '%'||upper(#{search})||'%'
+                 order by product_no desc) A) B
+     where rnum between #{startNum} and #{endNum}
+    </select>
+    
+</mapper>

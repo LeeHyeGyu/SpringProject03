@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.os.bear.cart.CartDAO">
+
+	<insert id="insertCart" parameterType="CartDTO">
+		INSERT INTO OS_CART
+			(cart_id, user_id, product_no, cart_qty) values
+			(cart_no_seq.nextval, #{userDTO.user_id}, #{productDTO.product_no}, #{cart_qty})
+	</insert>
+	
+	<select id="getCart" parameterType="String" resultType="CartDTO">
+		SELECT c.cart_id, u.user_id as "userDTO.user_id", p.product_no as "productDTO.product_no", p.product_name as "productDTO.product_name", c.cart_qty, p.product_price as "productDTO.product_price", p.product_price*c.cart_qty as "money"
+		FROM os_user u, os_cart c, os_product p
+		WHERE u.user_id=c.user_id AND p.product_no=c.product_no AND u.user_id=#{userInfo.user_id}
+	</select>
+	
+	<select id="sumPrice" parameterType="String" resultType="int">
+		SELECT nvl(sum(p.product_price*c.cart_qty),0)
+		FROM os_product p, os_cart c
+		WHERE p.product_no=c.product_no
+		AND   c.user_id=#{userInfo.user_id}
+	</select>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM os_cart
+		WHERE cart_id=#{cart_id}
+	</delete>
+	
+	<delete id="deleteAll" parameterType="String">
+		DELETE FROM os_cart
+		WHERE user_id=#{userInfo.user_id}
+	</delete>
+	
+	<!-- same product? -->
+	<select id="countCart" resultType="int">
+		SELECT COUNT(*)
+		FROM os_cart
+		WHERE user_id=#{userInfo.user_id}
+		AND product_no=#{productDTO.product_no}
+	</select>
+	
+	<update id="modifyCart" parameterType="CartDTO">
+		UPDATE os_cart SET cart_qty=#{cart_qty}
+		WHERE user_id=#{userInfo.user_id} AND product_no=#{productDTO.product_no}
+	</update>
+	
+	
+	<update id="qupdatecart" parameterType="CartDTO">
+     UPDATE os_cart SET cart_qty = #{cart_qty} 
+     where user_id = #{userDTO.user_id} 
+     and product_no =#{productDTO.product_no}
+    </update>
+</mapper>

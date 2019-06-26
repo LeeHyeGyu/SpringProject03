@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.os.bear.user.UserDAO">
+
+	<select id="getUser" parameterType="UserDTO" resultType="UserDTO">
+	SELECT user_id,user_pw,user_adr,user_level,user_warn,user_jumin,user_taste,
+		   user_taste2,user_taste3,user_flavor,user_type
+	FROM os_user
+	WHERE user_id=#{user_id} AND user_pw=#{user_pw}
+	</select>
+	
+	<select id="joinUser" parameterType="UserDTO" >
+	INSERT INTO OS_USER (user_id,user_pw,user_adr,user_jumin,user_taste,
+		   user_taste2,user_taste3,user_flavor,user_type)
+	VALUES (#{user_id},#{user_pw},#{user_adr},#{user_jumin},#{user_taste},#{user_taste2},
+			#{user_taste3},#{user_flavor},#{user_type})
+	</select>
+	
+	<select id="idcheck" parameterType="UserDTO" resultType="int">
+      SELECT count(*)
+      FROM OS_USER
+      WHERE user_id = #{user_id}
+	</select>
+	
+	<select id="changeInfo" parameterType="UserDTO">
+		UPDATE os_user
+		SET user_pw=#{user_pw}, user_adr=#{user_adr}, user_taste=#{user_taste},
+			user_taste2=#{user_taste2},user_taste3=#{user_taste3},
+    		user_flavor=#{user_flavor} ,user_type=#{user_type}
+		WHERE user_id=#{user_id}
+	</select>
+	
+	<select id="delete" parameterType="UserDTO">
+		delete from os_user
+		where user_id=#{user_id}
+	</select>	
+	
+	<select id="getOrderList" resultType="MyPageDTO">
+	select o.order_no as "orderDTO.order_no",o.order_qty as "orderDTO.order_qty",
+		   o.order_delivery as "orderDTO.order_delivery" ,o.order_addr as "orderDTO.order_addr",
+		   o.user_id , od.product_no as "orderDTO.product_no", od.order_detail_qty as "orderDTO.order_detail_qty",
+		   p.product_name as "productDTO.product_name" , p.product_price as "productDTO.product_price"
+	from os_order o join os_order_detail od
+	on o.order_no = od.order_no
+    join os_product p
+    on od.product_no = p.product_no
+	where o.user_id=#{userDTO.user_id}
+	order by o.order_no desc
+	</select>
+	
+	<select id="getReviewList" resultType="MyPageDTO">
+	select r.review_title as "reviewDTO.review_title" , r.review_content as "reviewDTO.review_content", 
+		   r.review_date as "reviewDTO.review_date" , r.product_no as "reviewDTO.product_no", 
+		   r.review_no as "reviewDTO.review_no", p.product_name as "productDTO.product_name",
+		   r.user_id
+	from os_review r join os_product p
+	on r.product_no = p.product_no
+	where r.user_id=#{userDTO.user_id}
+	order by r.review_no desc
+	</select>
+	
+	<select id="getSocialList" resultType="MyPageDTO">
+	select user_id , social_no as "socialDTO.social_no", social_title as "socialDTO.social_title", 
+           social_content as "socialDTO.social_content", social_date as "socialDTO.social_date"
+	from os_social
+	where user_id=#{userDTO.user_id}
+	order by social_no desc
+	</select>
+	
+	<select id="getMarkList" resultType="MyPageDTO">
+	select p.product_name as "productDTO.product_name", m.product_no as "markDTO.product_no",
+      	   m.mark_date as "markDTO.mark_date",m.mark_no as "markDTO.mark_no",m.user_id
+	from os_mark m join os_product p
+	on m.product_no = p.product_no
+	where m.user_id=#{userDTO.user_id}
+	order by m.mark_date desc
+	</select>
+<!-- 	1:1문의내역 -->
+	<select id="getCSList" resultType="MyPageDTO">
+	select p.product_name as "productDTO.product_name", c.product_no as "csDTO.product_no",
+	       c.cs_no as "csDTO.cs_no",c.cs_title as "csDTO.cs_title",c.cs_content as "csDTO.cs_content", 
+	       c.cs_answer as "csDTO.cs_answer",c.cs_check as "csDTO.cs_check",
+	       c.cs_question_date as "csDTO.cs_question_date"
+	from os_cs c join os_product p
+	on c.product_no = p.product_no
+	where c.user_id=#{userDTO.user_id}
+	AND c.cs_section = 'A'
+	order by c.cs_no desc
+	</select>
+	<!-- 	제품QnA -->
+	<select id="getProductCSList" resultType="MyPageDTO">
+	select p.product_name as "productDTO.product_name", c.product_no as "csDTO.product_no",
+	       c.cs_no as "csDTO.cs_no",c.cs_title as "csDTO.cs_title",c.cs_content as "csDTO.cs_content", 
+	       c.cs_answer as "csDTO.cs_answer",c.cs_check as "csDTO.cs_check",
+	       c.cs_question_date as "csDTO.cs_question_date"
+	from os_cs c join os_product p
+	on c.product_no = p.product_no
+	where c.user_id=#{userDTO.user_id}
+	AND c.cs_section = 'B'
+	order by c.cs_no desc
+	</select>
+<!-- 	받은메세지 -->
+	<select id="getRecvMSGList" resultType="MyPageDTO">
+	select MSG_NO as "msgDTO.msg_no",MSG_CONTENT as "msgDTO.msg_content",
+       	   MSG_SEND_DATE as "msgDTO.msg_send_date",USER_ID as "msgDTO.user_id" ,
+      	   MSG_RECV_ID as "msgDTO.msg_recv_id",MSG_RECV_DATE as "msgDTO.msg_recv_date",
+      	   MSG_RECV_DELETE as "msgDTO.msg_recv_delete", MSG_SEND_DELETE as "msgDTO.msg_send_delete",
+      	   MSG_STATUS as "msgDTO.msg_status"
+	from os_msg
+	where msg_recv_id=#{userDTO.user_id}
+	ORDER BY msg_no desc
+	</select>
+<!-- 	보낸메세지 -->
+	<select id="getSendMSGList" resultType="MyPageDTO">
+	SELECT MSG_NO as "msgDTO.msg_no",MSG_CONTENT as "msgDTO.msg_content",
+       		MSG_SEND_DATE as "msgDTO.msg_send_date",USER_ID ,
+       		MSG_RECV_ID as "msgDTO.msg_recv_id",MSG_RECV_DATE as "msgDTO.msg_recv_date",
+       		MSG_RECV_DELETE as "msgDTO.msg_recv_delete", MSG_SEND_DELETE as "msgDTO.msg_send_delete",
+       		MSG_STATUS as "msgDTO.msg_status"
+	FROM os_msg
+	WHERE user_id=#{userDTO.user_id}
+	ORDER BY msg_no desc
+	</select>
+	
+	<select id="getSendMsg" parameterType="MsgDTO">
+	insert into os_msg(MSG_NO,MSG_CONTENT,USER_ID,MSG_RECV_ID)
+	values (MSG_NO_SEQ.nextval,#{msg_content},#{user_id},#{msg_recv_id})
+	</select>
+
+	<select id="getMSG" parameterType="int" resultType="MsgDTO">
+	select  msg_no ,msg_content,msg_send_date ,user_id ,msg_recv_id ,msg_recv_date,msg_send_delete,
+			msg_recv_delete,msg_status
+	from os_msg
+	where msg_no = #{msgDTO.msg_no}
+	order by msg_no desc
+	</select>
+	
+	<select id="recvDelete" parameterType="MsgDTO">
+	update os_msg
+	set msg_recv_delete = 1
+	where msg_no in (#{msg_no})
+	</select>
+	
+	<select id="sendDelete" parameterType="MsgDTO">
+	update os_msg
+	set msg_send_delete = 1
+	where msg_no in (#{msg_no})
+	</select>
+	
+	<select id="realDelete" >
+	delete from os_msg
+	where msg_recv_delete=1 AND msg_send_delete=1
+	</select>
+	
+	<select id="getMarkCnt" parameterType="UserDTO" resultType="int">
+	select count(*)
+	from os_mark
+	where user_id=#{user_id}
+	</select>
+	
+	<select id="getCartCnt" parameterType="UserDTO" resultType="int">
+	select count(*)
+	from os_cart
+	where user_id=#{user_id}
+	</select>
+
+	<select id="readCheck" parameterType="int">
+	update os_msg
+	set msg_status='Y'
+	where msg_no=#{msg_no}
+	</select>
+	
+	<select id="reviewDelete" parameterType="int">
+	delete from os_review
+	where review_no=#{review_no}
+	</select>
+	
+	<select id="socialDelete" parameterType="int">
+	delete from os_social
+	where social_no=#{social_no}
+	</select>
+	
+	<select id="csDelete" parameterType="long">
+	delete from os_cs
+	where cs_no=#{cs_no}
+	</select>
+	
+	<select id="cscsDelete" parameterType="long">
+	delete from os_cs
+	where cs_no=#{cs_no}
+	</select>
+	
+</mapper>

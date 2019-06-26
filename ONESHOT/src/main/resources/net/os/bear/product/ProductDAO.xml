@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.os.bear.product.ProductDAO">
+	<select id="getProduct" parameterType="int"
+		resultType="ProductDTO">
+		SELECT
+		product_no,product_name,product_price,product_sales_qty,product_ename,
+		product_stock_qty,product_alc,product_size,product_info,product_date,product_taste,
+		product_taste2,product_taste3,product_flavor,product_type,product_country
+		FROM os_product
+		WHERE product_no=#{product_no}
+	</select>
+	<select id="getReview" parameterType="int"
+		resultType="ReviewDTO">
+		SELECT
+		r.review_rating,r.review_no,r.review_title,r.review_content,r.user_id,r.review_date,r.product_no
+		,u.user_level as "userdto.user_level"
+		<!-- ,u.user_jumin as "userdto.user_jumin" -->
+		,u.user_taste as "userdto.user_taste"
+		,u.user_taste2 as
+		"userdto.user_taste2"
+		,u.user_taste3 as "userdto.user_taste3"
+		,u.user_flavor as "userdto.user_flavor"
+		,u.user_type as
+		"userdto.user_type"
+		FROM os_review r inner join os_user u
+		ON r.user_id =
+		u.user_id
+		WHERE r.product_no=#{product_no}
+
+	</select>
+
+
+	<select id="getRating" parameterType="int" resultType="double">
+		SELECT
+		AVG(review_rating)
+		FROM os_review
+		WHERE product_no=#{product_no}
+	</select>
+
+	<select id="getReviewCount" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+		FROM os_review
+		WHERE product_no=#{product_no}
+	</select>
+
+	<select id="getCS" parameterType="int"
+		resultType="net.os.bear.cs.CSDTO">
+		SELECT
+		cs_title,cs_content,cs_answer,cs_check,cs_section,cs_question_date,cs_answer_date,cs_no,
+		user_id as "userDTO.user_id",product_no
+		FROM os_cs
+		WHERE
+		product_no=#{product_no}
+		AND CS_SECTION = 'B'
+	</select>
+	<insert id="QnAinsert" parameterType="net.os.bear.cs.CSDTO">
+		insert into OS_CS(cs_no, cs_title, cs_content, cs_section, user_id,
+		product_no)
+		values(CS_NO_SEQ.NEXTVAL, #{cs_title}, #{cs_content},#{cs_section}, #{userDTO.user_id},
+		#{product_no} )
+	</insert>
+
+	<select id="getmark" parameterType="MarkDTO"
+		resultType="MarkDTO">
+		SELECT
+		mark_no,product_no as "productdto.product_no",user_id as "userdto.user_id",mark_date
+		FROM os_mark
+		WHERE product_no=#{productdto.product_no} and
+		user_id=#{userdto.user_id}
+	</select>
+
+
+	<insert id="Markadd" parameterType="MarkDTO">
+		insert into OS_MARK(mark_no, product_no, user_id)
+		values(#{productdto.product_no}||#{userdto.user_id},
+		#{productdto.product_no}, #{userdto.user_id} )
+	</insert>
+	<delete id="Markdel" parameterType="MarkDTO">
+		delete from os_mark
+		where product_no = #{productdto.product_no} and user_id = #{userdto.user_id}
+	</delete>
+	<insert id="Reviewadd" parameterType="ReviewDTO">
+		insert into os_review(review_rating, review_no,review_title,review_content,user_id,product_no)
+		values(#{review_rating},REVIEW_NO_SEQ.NEXTVAL,
+		#{review_title},#{review_content},
+		#{userdto.user_id},#{product_no})
+	</insert>
+	
+<!-- 	<select id="getmark" parameterType="MarkDTO" -->
+<!-- 		resultType="MarkDTO"> -->
+<!-- 		SELECT -->
+<!-- 		mark_no,product_no as "productdto.product_no",user_id as "userdto.user_id",mark_date -->
+<!-- 		FROM os_mark -->
+<!-- 		WHERE product_no=#{productdto.product_no} and -->
+<!-- 		user_id=#{userdto.user_id} -->
+<!-- 	</select> -->
+	
+	<select id="ReviewCheck" parameterType="ReviewDTO" resultType="string">
+	select  DISTINCT 
+	o.user_id 
+	from os_order o join os_order_detail d
+	on o.ORDER_NO=d.ORDER_NO
+	where o.user_id=#{userdto.user_id}
+	and  d.product_no=#{product_no}
+	</select>
+	
+	<select id="doubleCheck" parameterType="ReviewDTO" resultType="string">
+	select  DISTINCT 
+	user_id 
+	from os_review
+	where user_id=#{userdto.user_id}
+	and  product_no=#{product_no}
+	</select>
+	
+	
+	
+	<select id="CartCheck" parameterType="ReviewDTO" resultType="string">
+	select  
+	user_id
+	from os_cart 
+	where user_id=#{userdto.user_id}
+	and  product_no=#{product_no}
+	</select>
+
+</mapper>

@@ -1,0 +1,131 @@
+@charset "UTF-8";
+.card-image {
+	display: block;
+	min-height: 20rem; /* layout hack */
+	background: #fff center center no-repeat;
+	background-size: cover;
+	filter: blur(3px); /* blur the lowres image */
+}
+
+.card-image > img {
+	display: block;
+	width: 100%;
+	opacity: 0; /* visually hide the img element */
+}
+
+.card-image.is-loaded {
+	filter: none; /* remove the blur on fullres image */
+	transition: filter 1s;
+}
+
+ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+
+li {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+    border : 0;
+    float: left;
+}
+
+
+
+/* Layout Styles */
+/* html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	font-size: 16px;
+	font-family: sans-serif;
+} */
+
+.card-list {
+	display: block;
+	margin: 1rem auto;
+	padding: 0;
+	font-size: 0;
+	text-align: center;
+	list-style: none;
+}
+
+.card {
+	display: inline-block;
+	width: 22%;
+	max-width: 20rem;
+	margin: 1rem;
+	font-size: 1rem;
+	text-decoration: none;
+	overflow: hidden;
+	box-shadow: 0 0 3rem -1rem rgba(0,0,0,0.5);
+	transition: transform 0.1s ease-in-out, box-shadow 0.1s;
+}
+
+.card:hover {
+	transform: translateY(-0.5rem) scale(1.0125);
+	box-shadow: 0 0.5em 3rem -1rem rgba(0,0,0,0.5);
+}
+
+.card-description {
+	display: block;
+	padding: 1em 0.5em;
+	color: #515151;
+	text-decoration: none;
+}
+
+.card-description > h2 {
+	margin: 0 0 0.5em;
+}
+
+.card-description > p {
+	margin: 0;
+}
+/* 아코디언*/
+/*General style */
+
+/* #accordion {padding:  150px;}
+.panel-title a {font-size: 14px;text-transform: uppercase;font-weight: 600;padding-right:20px}
+.panel-default>.panel-heading {text-align: left;}
+.panel-heading {padding: 30px 15px;}
+
+
+Code for animation -- to change direction of chevron just change -40px to 40px and vice versa
+.glyphicon-chevron-down-custom span, .glyphicon-chevron-up-custom span {width: 10px; height: 5px; background-color: rgb(99, 99, 99); display: inline-block; transition: all .1s linear;}
+.glyphicon-chevron-down-custom .sp-1, .glyphicon-chevron-up-custom .sp-2 {transform: skewY(-40deg);}
+.glyphicon-chevron-up-custom .sp-1, .glyphicon-chevron-down-custom .sp-2 {transform: skewY(40deg);}
+.glyphicon {top: -2px;}
+ */
+
+/* .accordion{
+  list-styly-type: none;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  margin: .5rem 0 1rem 0;
+  padding-left: 0;
+  width: 30%;
+}
+
+.accordion-header{
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  min-width: 3rem;
+  line-height: 3rem;
+  padding: 0 1rem;
+}
+
+.accordion-header:after{
+  content: '+';
+  float: right;
+  font-size: .8rem;
+}
+
+.accordion-header .active:after{
+  transform: rotate(45deg);
+}
+
+.accordion-body{
+  display: none;
+} */

@@ -1,0 +1,42 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto+Condensed:400,300);
+body {
+  background-color: #333;
+  font-family: 'Roboto Condensed', sans-serif;
+  letter-spacing: 2px;
+}
+#main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 40px;
+  flex-direction: column;
+}
+/* all accordion related css below */
+.accordion {
+  background-color: #ededed;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+.accordion p {
+  padding-top: 20px;
+}
+.accordion h4 {
+  color: #333;
+  display: inline;
+  font-size: 20px;
+  margin: 0;
+}
+.accordion .accordion-title {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.accordion .accordion-title.active .accordion-arrow {
+  transform: rotate(0);
+}
+.accordion .accordion-text {
+  display: none;
+  color: #333;
+}
