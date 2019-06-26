@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.os.bear.board.BoardDAO">
+
+	<select id="getArticleList" parameterType="int" resultType="ArticleDTO">
+		SELECT    a.social_no as "social_no", a.social_title as "social_title",
+			      a.user_id as "user_id", a.social_count as "social_count", a.social_date as "social_date",
+			      a.social_content as "social_content", a.event_date as "event_date", 
+			      a.deadline as "deadline", a.maxp as "maxp", a.join_stat as "join_stat"
+		FROM      os_social a inner join os_user b
+		ON        a.user_id = b.user_id
+		Where     a.social_section=#{section_no}
+		ORDER BY  social_no DESC
+	</select>
+
+	<insert id="insertArticle" parameterType="ArticleDTO">
+		insert into os_social(social_no, social_title, social_content, 
+		                      social_section, user_id, 
+		                      event_date, deadline, maxp, join_stat)
+		values(social_no_seq.nextval, #{social_title}, #{social_content}, 
+			   #{social_section}, #{userDTO.user_id }, 
+			   #{event_date}, #{deadline}, #{maxp}, #{join_stat})
+	</insert>
+	
+	<select id="sendMsgg" parameterType="net.os.bear.user.MsgDTO">
+		insert into os_msg(msg_no, msg_content, user_id, msg_recv_id)
+		values (msg_no_seq.nextval, #{msg_content}, #{user_id}, #{msg_recv_id})
+	</select>
+
+	<delete id="deleteArticle" parameterType="ArticleDTO">
+		delete from os_social
+		where social_no = #{social_no} and (#{userDTO.user_level} > 0 or #{userDTO.user_id} = user_id) 
+	</delete>
+
+	<update id="updateArticle" parameterType="ArticleDTO" >
+		update os_social
+		set social_title = #{social_title},
+		    social_content = #{social_content},
+		    event_date = #{event_date},
+		    deadline = #{deadline},
+		    maxp = #{maxp},
+		    join_list = #{join_list},
+		    join_stat = #{join_stat}
+	    where social_no = #{social_no}
+		
+	</update>
+
+	<select id="getArticle" parameterType="int" resultType="ArticleDTO">
+		SELECT    social_no, social_title, social_content, 
+				  social_section, social_date, user_id,
+				  social_count, event_date,  deadline,
+				  maxp, join_stat, join_list
+		FROM      os_social
+		Where     social_no = #{social_no}
+	</select>
+	
+	<insert id="insertComment" parameterType="CommentDTO">
+		insert into t_comment(com_no, com_content, com_ip, art_no, usr_no)
+		values(seq_comment.nextval, #{com_content}, #{com_ip}, #{art_no},
+		#{userDTO.usr_no})
+	</insert>
+
+	<select id="getCommentList" parameterType="CommentDTO"
+		resultType="CommentDTO">
+		select c.com_no, c.com_content, c.com_regdate
+		,c.com_like, c.com_dislike, c.com_ip, c.art_no
+		,u.usr_no AS "userDTO.usr_no"
+		,u.usr_id AS "userDTO.usr_id"
+		,u.usr_name AS "userDTO.usr_name"
+		from t_comment c inner join t_user u
+		on c.usr_no = u.usr_no
+		where c.art_no = #{art_no}
+		order by c.com_no desc
+	</select>
+
+	<delete id="deleteComment" parameterType="CommentDTO">
+		DELETE FROM t_comment
+		WHERE com_no = #{com_no} AND usr_no = #{userDTO.usr_no}
+	</delete>
+
+	<update id="updateComment" parameterType="CommentDTO">
+		UPDATE t_comment set com_content = #{com_content}
+		WHERE com_no = #{com_no} AND usr_no = #{userDTO.usr_no}
+	</update>
+</mapper>
